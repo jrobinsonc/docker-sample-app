@@ -1,0 +1,12 @@
+version: '3.5'
+
+services:
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - 8025
+
+  adminer:
+    image: adminer
+    ports:
+      - 8080
