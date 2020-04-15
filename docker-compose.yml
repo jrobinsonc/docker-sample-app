@@ -2,25 +2,21 @@ version: '3.5'
 
 services:
   web:
-    image: jrobinsonc/php:7.3-apache
+    build: .
     ports:
       - 80
       - 443
     volumes:
       - ./app:/var/www/html
+      - ./logs:/var/www/logs
     environment:
-      - APP_ENV
       - MYSQL_HOST
       - MYSQL_DATABASE
       - MYSQL_PASSWORD
       - MYSQL_USER
-    depends_on:
-      - db
 
   db:
     image: mariadb:10
-    volumes:
-      - db-data:/var/lib/mysql
     environment:
       - MYSQL_DATABASE
       - MYSQL_ROOT_PASSWORD
@@ -29,5 +25,12 @@ services:
     ports:
       - 3306
 
-volumes:
-  db-data:
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - 8025
+
+  adminer:
+    image: adminer
+    ports:
+      - 8080

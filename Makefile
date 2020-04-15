@@ -1,44 +1,27 @@
-config_default=-f docker-compose.yml
-config_dev=-f docker-compose.yml -f docker-compose.dev.yml
-
-ifeq (dev, $(env))
-	config=$(config_dev)
-else
-	config=$(config_default)
-endif
-
-web_url=$(shell docker-compose $(config) port web 80 | sed 's/0.0.0.0/http:\/\/localhost/g')
-web_url_https=$(shell docker-compose $(config) port web 443 | sed 's/0.0.0.0/https:\/\/localhost/g')
-mail_url=$(shell docker-compose $(config_dev) port mailhog 8025 | sed 's/0.0.0.0/http:\/\/localhost/g')
-db_url=$(shell docker-compose $(config_dev) port adminer 8080 | sed 's/0.0.0.0/http:\/\/localhost/g')
+https_url=$(shell docker-compose port web 443 | sed 's/0.0.0.0/https:\/\/localhost/g')
+http_url=$(shell docker-compose port web 80 | sed 's/0.0.0.0/http:\/\/localhost/g')
+mail_url=$(shell docker-compose port mailhog 8025 | sed 's/0.0.0.0/http:\/\/localhost/g')
+db_url=$(shell docker-compose port adminer 8080 | sed 's/0.0.0.0/http:\/\/localhost/g')
 
 start-new:
-	docker-compose $(config) up --force-recreate -d web
-	sleep 1
-	docker-compose $(config) ps
+	docker-compose up --force-recreate --build -d
 
 start:
-	docker-compose $(config) up -d --no-recreate
-	sleep 1
-	docker-compose $(config) ps
+	docker-compose up -d --no-recreate
 
 stop:
-	docker-compose $(config_dev) stop
+	docker-compose stop
 
 destroy:
-	docker-compose $(config_dev) down -v
-
-ps:
-	docker-compose $(config_dev) ps
+	docker-compose down -v
+	@echo "\n⚠️ Remember to remove the image built for the web container \nif you don't need it anymore; the name of the image should be \nprefixed with what is defined in COMPOSE_PROJECT_NAME.\n"
 
 shell:
-	docker-compose $(config) exec web bash
+	docker-compose exec web bash
 
 open-web:
-	open $(web_url)
-
-open-web-https:
-	open $(web_url_https)
+	open $(http_url)
+	# open $(https_url)
 
 open-mail:
 	open $(mail_url)
